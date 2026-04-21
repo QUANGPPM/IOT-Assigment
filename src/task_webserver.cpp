@@ -1,22 +1,30 @@
 #include "task_webserver.h"
+#include "app_config.h"
+#include <ArduinoJson.h>
 
+// Initialize AsyncWebServer on port 80
 AsyncWebServer server(80);
+// Initialize AsyncWebSocket on the "/ws" path
 AsyncWebSocket ws("/ws");
 
+
 bool webserver_isrunning = false;
+
 
 void Webserver_sendata(String data)
 {
     if (ws.count() > 0)
     {
-        ws.textAll(data); // Gửi đến tất cả client đang kết nối
+        ws.textAll(data); // Send to all connected clients
         Serial.println("📤 Đã gửi dữ liệu qua WebSocket: " + data);
     }
     else
     {
         Serial.println("⚠️ Không có client WebSocket nào đang kết nối!");
+        // Serial.println("⚠️ No WebSocket clients are connected!");
     }
 }
+
 
 void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType type, void *arg, uint8_t *data, size_t len)
 {
@@ -34,15 +42,19 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 
         if (info->opcode == WS_TEXT)
         {
+            // Concatenate data chunks to form the complete message
             String message;
             message += String((char *)data).substring(0, len);
             // parseJson(message, true);
+            // Pass the message to the handler function
             handleWebSocketMessage(message);
         }
     }
 }
 
-void connnectWSV()
+
+
+void connectWSV()
 {
     ws.onEvent(onEvent);
     server.addHandler(&ws);
@@ -57,6 +69,7 @@ void connnectWSV()
     webserver_isrunning = true;
 }
 
+
 void Webserver_stop()
 {
     ws.closeAll();
@@ -64,11 +77,60 @@ void Webserver_stop()
     webserver_isrunning = false;
 }
 
+
 void Webserver_reconnect()
 {
     if (!webserver_isrunning)
     {
-        connnectWSV();
+        connectWSV();
     }
     ElegantOTA.loop();
+}
+
+
+void task_webserver_run(void *pvParameters)
+{
+    // Start the webserver once. This function will set up all handlers
+    // for the web page, WebSocket, and ElegantOTA.
+    connectWSV();
+    Serial.println("🚀 Web server task started and running.");
+
+    while (1)
+    {
+        // ElegantOTA needs to be called in a loop to handle OTA updates.
+        ElegantOTA.loop();
+
+        // AsyncWebServer handles client connections in the background.
+        // This delay yields CPU time to other tasks.
+        vTaskDelay(20 / portTICK_PERIOD_MS);
+    }
+}
+
+/**
+ * @brief Task to send sensor data over WebSocket.
+ * This is a "Consumer" task that waits for data from the TinyML task.
+ */
+void task_websocket_sender(void *pvParameters)
+{
+    ProcessedData received_data;
+    while (1)
+    {
+        // Wait for new processed data from the TinyML task
+        if (xQueueReceive(xQueueMLToWeb, &received_data, portMAX_DELAY) == pdTRUE)
+        {
+            // Don't send invalid data
+            if (received_data.temperature > -999.0f)
+            {
+                StaticJsonDocument<200> doc;
+                doc["type"] = "update";
+                doc["temp"] = received_data.temperature;
+                doc["humi"] = received_data.humidity;
+                doc["anomaly"] = received_data.anomaly_score;
+
+                String output;
+                serializeJson(doc, output);
+                Webserver_sendata(output);
+            }
+        }
+    }
 }

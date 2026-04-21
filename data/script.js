@@ -1,11 +1,14 @@
 // ==================== WEBSOCKET ====================
 var gateway = `ws://${window.location.hostname}/ws`;
 var websocket;
+// Khai báo biến gauge toàn cục để có thể truy cập từ onMessage
+var gaugeTemp, gaugeHumi;
 
 window.addEventListener('load', onLoad);
 
 function onLoad(event) {
     initWebSocket();
+    initGauges(); // Khởi tạo gauge khi trang tải xong
 }
 
 function onOpen(event) {
@@ -38,8 +41,16 @@ function Send_Data(data) {
 function onMessage(event) {
     console.log("📩 Nhận:", event.data);
     try {
-        var data = JSON.parse(event.data);
-        // Có thể thêm xử lý riêng nếu cần (ví dụ cập nhật trạng thái)
+        const data = JSON.parse(event.data);
+        // Kiểm tra nếu đây là tin nhắn cập nhật cảm biến
+        if (data.type === 'update') {
+            // Cập nhật gauge với dữ liệu thật từ ESP32
+            if (gaugeTemp) gaugeTemp.refresh(data.temp);
+            if (gaugeHumi) gaugeHumi.refresh(data.humi);
+            // Bạn cũng có thể hiển thị điểm số bất thường ở đâu đó
+            // Ví dụ: document.getElementById('anomalyScore').innerText = data.anomaly.toFixed(4);
+        }
+        // Xử lý các loại tin nhắn khác nếu cần
     } catch (e) {
         console.warn("Không phải JSON hợp lệ:", event.data);
     }
@@ -59,10 +70,10 @@ function showSection(id, event) {
 
 
 // ==================== HOME GAUGES ====================
-window.onload = function () {
-    const gaugeTemp = new JustGage({
+function initGauges() {
+    gaugeTemp = new JustGage({
         id: "gauge_temp",
-        value: 26,
+        value: 0, // Bắt đầu từ 0
         min: -10,
         max: 50,
         donut: true,
@@ -73,9 +84,9 @@ window.onload = function () {
         levelColors: ["#00BCD4", "#4CAF50", "#FFC107", "#F44336"]
     });
 
-    const gaugeHumi = new JustGage({
+    gaugeHumi = new JustGage({
         id: "gauge_humi",
-        value: 60,
+        value: 0, // Bắt đầu từ 0
         min: 0,
         max: 100,
         donut: true,
@@ -86,11 +97,9 @@ window.onload = function () {
         levelColors: ["#42A5F5", "#00BCD4", "#0288D1"]
     });
 
-    setInterval(() => {
-        gaugeTemp.refresh(Math.floor(Math.random() * 15) + 20);
-        gaugeHumi.refresh(Math.floor(Math.random() * 40) + 40);
-    }, 3000);
-};
+    // Đã xóa `setInterval` tạo dữ liệu ngẫu nhiên.
+    // Gauge giờ sẽ được cập nhật bởi tin nhắn WebSocket.
+}
 
 
 // ==================== DEVICE FUNCTIONS ====================

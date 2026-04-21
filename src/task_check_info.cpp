@@ -15,11 +15,11 @@ void Load_info_File()
   }
   else
   {
-    WIFI_SSID = strdup(doc["WIFI_SSID"]);
-    WIFI_PASS = strdup(doc["WIFI_PASS"]);
-    CORE_IOT_TOKEN = strdup(doc["CORE_IOT_TOKEN"]);
-    CORE_IOT_SERVER = strdup(doc["CORE_IOT_SERVER"]);
-    CORE_IOT_PORT = strdup(doc["CORE_IOT_PORT"]);
+    WIFI_SSID = doc["WIFI_SSID"].as<String>();
+    WIFI_PASS = doc["WIFI_PASS"].as<String>();
+    CORE_IOT_TOKEN = doc["CORE_IOT_TOKEN"].as<String>();
+    CORE_IOT_SERVER = doc["CORE_IOT_SERVER"].as<String>();
+    CORE_IOT_PORT = doc["CORE_IOT_PORT"].as<String>();
   }
   file.close();
 }
@@ -53,7 +53,7 @@ void Save_info_File(String wifi_ssid, String wifi_pass, String CORE_IOT_TOKEN, S
   }
   else
   {
-    Serial.println('Unable to save the configuration.');
+    Serial.println("Unable to save the configuration.");
   }
   ESP.restart();
 };

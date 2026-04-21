@@ -3,8 +3,7 @@
 #include "led_blinky.h"
 #include "neo_blinky.h"
 #include "temp_humi_monitor.h"
-// #include "mainserver.h"
-// #include "tinyml.h"
+#include "tinyml.h"
 #include "coreiot.h"
 
 // include task
@@ -21,25 +20,19 @@ void setup()
 
   xTaskCreate(led_blinky, "Task LED Blink", 2048, NULL, 2, NULL);
   xTaskCreate(neo_blinky, "Task NEO Blink", 2048, NULL, 2, NULL);
-  xTaskCreate(temp_humi_monitor, "Task TEMP HUMI Monitor", 2048, NULL, 2, NULL);
-  // xTaskCreate(main_server_task, "Task Main Server" ,8192  ,NULL  ,2 , NULL);
-  // xTaskCreate( tiny_ml_task, "Tiny ML Task" ,2048  ,NULL  ,2 , NULL);
-  xTaskCreate(coreiot_task, "CoreIOT Task" ,4096  ,NULL  ,2 , NULL);
+  xTaskCreate(task_read_sensor, "Task Read Sensor", 3072, NULL, 3, NULL);
+  xTaskCreate(task_lcd_display, "Task LCD Display", 3072, NULL, 2, NULL);
+  xTaskCreate(task_webserver_run, "Task Webserver", 8192, NULL, 2, NULL);
+  xTaskCreate(task_websocket_sender, "Task WS Sender", 4096, NULL, 2, NULL);
+  xTaskCreate(tiny_ml_task, "Tiny ML Task", 8192, NULL, 2, NULL); // Needs more stack
+  // xTaskCreate(coreiot_task, "CoreIOT Task", 4096, NULL, 2, NULL);
   // xTaskCreate(Task_Toogle_BOOT, "Task_Toogle_BOOT", 4096, NULL, 2, NULL);
 }
 
 void loop()
 {
-  if (check_info_File(1))
-  {
-    if (!Wifi_reconnect())
-    {
-      Webserver_stop();
-    }
-    else
-    {
-      //CORE_IOT_reconnect();
-    }
-  }
-  Webserver_reconnect();
+  // With FreeRTOS, the loop() function is not needed.
+  // All logic is handled by dedicated tasks.
+  // We can let this task sleep indefinitely.
+  vTaskSuspend(NULL);
 }

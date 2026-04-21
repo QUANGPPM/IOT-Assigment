@@ -13,7 +13,7 @@
 #include "tensorflow/lite/micro/system_setup.h"
 #include "tensorflow/lite/schema/schema_generated.h"
 
-void setupTinyML();
+bool setupTinyML();
 void tiny_ml_task(void *pvParameters);
 
 #endif

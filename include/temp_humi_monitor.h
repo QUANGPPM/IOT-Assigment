@@ -5,7 +5,6 @@
 #include "DHT20.h"
 #include "global.h"
 
-void temp_humi_monitor(void *pvParameters);
-
-
+void task_read_sensor(void *pvParameters);
+void task_lcd_display(void *pvParameters);
 #endif
