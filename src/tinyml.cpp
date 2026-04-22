@@ -96,7 +96,7 @@ void tiny_ml_task(void *pvParameters)
             // Stage 4: Fan-out the processed data to downstream tasks
             xQueueOverwrite(xQueueMLToDisplay, &processed_data);
             xQueueSend(xQueueMLToServer, &processed_data, (TickType_t)10);
-            xQueueOverwrite(xQueueMLToWeb, &processed_data); // Gửi dữ liệu cho Web Server
+            xQueueOverwrite(xQueueMLToWeb, &processed_data); 
         }
     }
 }
