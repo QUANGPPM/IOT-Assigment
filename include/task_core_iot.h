@@ -9,5 +9,6 @@
 
 void CORE_IOT_sendata(String mode, String feed, String data);
 void CORE_IOT_reconnect();
+void task_core_iot_run(void *pvParameters);
 
 #endif

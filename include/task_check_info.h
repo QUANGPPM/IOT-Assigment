@@ -3,7 +3,7 @@
 
 #include <ArduinoJson.h>
 #include "LittleFS.h"
-#include "global.h"
+#include "app_config.h"
 #include "task_wifi.h"
 
 

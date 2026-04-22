@@ -1,5 +1,6 @@
 #include "task_check_info.h"
 
+
 void Load_info_File()
 {
   File file = LittleFS.open("/info.dat", "r");
@@ -15,11 +16,11 @@ void Load_info_File()
   }
   else
   {
-    WIFI_SSID = doc["WIFI_SSID"].as<String>();
-    WIFI_PASS = doc["WIFI_PASS"].as<String>();
-    CORE_IOT_TOKEN = doc["CORE_IOT_TOKEN"].as<String>();
-    CORE_IOT_SERVER = doc["CORE_IOT_SERVER"].as<String>();
-    CORE_IOT_PORT = doc["CORE_IOT_PORT"].as<String>();
+    appConfig.WIFI_SSID = doc["WIFI_SSID"].as<String>();
+    appConfig.WIFI_PASS = doc["WIFI_PASS"].as<String>();
+    appConfig.CORE_IOT_TOKEN = doc["CORE_IOT_TOKEN"].as<String>();
+    appConfig.CORE_IOT_SERVER = doc["CORE_IOT_SERVER"].as<String>();
+    appConfig.CORE_IOT_PORT = doc["CORE_IOT_PORT"].as<String>();
   }
   file.close();
 }
@@ -38,12 +39,19 @@ void Save_info_File(String wifi_ssid, String wifi_pass, String CORE_IOT_TOKEN, S
   Serial.println(wifi_ssid);
   Serial.println(wifi_pass);
 
+  // First, update the global configuration object
+  appConfig.WIFI_SSID = wifi_ssid;
+  appConfig.WIFI_PASS = wifi_pass;
+  appConfig.CORE_IOT_TOKEN = CORE_IOT_TOKEN;
+  appConfig.CORE_IOT_SERVER = CORE_IOT_SERVER;
+  appConfig.CORE_IOT_PORT = CORE_IOT_PORT;
+
   DynamicJsonDocument doc(4096);
-  doc["WIFI_SSID"] = wifi_ssid;
-  doc["WIFI_PASS"] = wifi_pass;
-  doc["CORE_IOT_TOKEN"] = CORE_IOT_TOKEN;
-  doc["CORE_IOT_SERVER"] = CORE_IOT_SERVER;
-  doc["CORE_IOT_PORT"] = CORE_IOT_PORT;
+  doc["WIFI_SSID"] = appConfig.WIFI_SSID;
+  doc["WIFI_PASS"] = appConfig.WIFI_PASS;
+  doc["CORE_IOT_TOKEN"] = appConfig.CORE_IOT_TOKEN;
+  doc["CORE_IOT_SERVER"] = appConfig.CORE_IOT_SERVER;
+  doc["CORE_IOT_PORT"] = appConfig.CORE_IOT_PORT;
 
   File configFile = LittleFS.open("/info.dat", "w");
   if (configFile)
@@ -70,7 +78,7 @@ bool check_info_File(bool check)
     Load_info_File();
   }
   
-  if (WIFI_SSID.isEmpty() && WIFI_PASS.isEmpty())
+  if (appConfig.WIFI_SSID.isEmpty() && appConfig.WIFI_PASS.isEmpty())
   {
     if (!check)
     {

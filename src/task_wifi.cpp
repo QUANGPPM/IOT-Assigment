@@ -1,4 +1,5 @@
 #include "task_wifi.h"
+#include "app_config.h"
 
 void startAP()
 {
@@ -10,20 +11,20 @@ void startAP()
 
 void startSTA()
 {
-    if (WIFI_SSID.isEmpty())
+    if (appConfig.WIFI_SSID.isEmpty())
     {
         vTaskDelete(NULL);
     }
 
     WiFi.mode(WIFI_STA);
 
-    if (WIFI_PASS.isEmpty())
+    if (appConfig.WIFI_PASS.isEmpty())
     {
-        WiFi.begin(WIFI_SSID.c_str());
+        WiFi.begin(appConfig.WIFI_SSID.c_str());
     }
     else
     {
-        WiFi.begin(WIFI_SSID.c_str(), WIFI_PASS.c_str());
+        WiFi.begin(appConfig.WIFI_SSID.c_str(), appConfig.WIFI_PASS.c_str());
     }
 
     while (WiFi.status() != WL_CONNECTED)

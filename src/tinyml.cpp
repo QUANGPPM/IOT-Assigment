@@ -1,5 +1,4 @@
 #include "tinyml.h"
-#include "app_config.h"
 
 // Globals, for the convenience of one-shot setup.
 namespace

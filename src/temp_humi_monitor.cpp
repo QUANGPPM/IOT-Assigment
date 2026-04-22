@@ -1,5 +1,5 @@
 #include "temp_humi_monitor.h"
-#include "app_config.h"
+
 
 DHT20 dht20;
 LiquidCrystal_I2C lcd(0x21, 16, 2); // I2C address 0x21, 16 chars, 2 lines

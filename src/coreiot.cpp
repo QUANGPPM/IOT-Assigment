@@ -1,4 +1,5 @@
 #include "coreiot.h"
+#include "app_config.h"
 
 // ----------- CONFIGURE THESE! -----------
 const char* coreIOT_Server = "10.235.76.226";  
@@ -101,7 +102,7 @@ void setup_coreiot(){
 
   Serial.println(" Connected!");
 
-  client.setServer(CORE_IOT_SERVER.c_str(), CORE_IOT_PORT.toInt());
+  client.setServer(appConfig.CORE_IOT_SERVER.c_str(), appConfig.CORE_IOT_PORT.toInt());
   client.setCallback(callback);
 
 }

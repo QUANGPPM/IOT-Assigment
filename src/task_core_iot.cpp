@@ -2,6 +2,7 @@
 #include "task_core_iot.h"
 
 constexpr uint32_t MAX_MESSAGE_SIZE = 1024U;
+#include "app_config.h"
 
 WiFiClient wifiClient;
 Arduino_MQTT_Client mqttClient(wifiClient);
@@ -83,7 +84,7 @@ void CORE_IOT_reconnect()
 {
     if (!tb.connected())
     {
-        if (!tb.connect(CORE_IOT_SERVER.c_str(), CORE_IOT_TOKEN.c_str(), CORE_IOT_PORT.toInt()))
+        if (!tb.connect(appConfig.CORE_IOT_SERVER.c_str(), appConfig.CORE_IOT_TOKEN.c_str(), appConfig.CORE_IOT_PORT.toInt()))
         {
             // Serial.println("Failed to connect");
             return;
@@ -116,5 +117,36 @@ void CORE_IOT_reconnect()
     else if (tb.connected())
     {
         tb.loop();
+    }
+}
+
+void task_core_iot_run(void *pvParameters)
+{
+    // Chờ kết nối WiFi thành công lần đầu tiên
+    if (xSemaphoreTake(xBinarySemaphoreInternet, portMAX_DELAY) == pdTRUE) {
+        xSemaphoreGive(xBinarySemaphoreInternet); // Trả lại semaphore cho các task khác nếu cần
+    }
+
+    ProcessedData received_data;
+
+    while (1)
+    {
+        if (WiFi.status() == WL_CONNECTED) {
+            CORE_IOT_reconnect(); // Hàm này vừa kết nối vừa duy trì tb.loop()
+        }
+
+        if (tb.connected()) {
+            // Chờ dữ liệu từ TinyML đẩy sang với timeout ngắn (10ms) để không chặn hàm tb.loop() bên trên
+            if (xQueueReceive(xQueueMLToServer, &received_data, 10 / portTICK_PERIOD_MS) == pdTRUE) {
+                if (received_data.temperature > -999.0f) {
+                    tb.sendTelemetryData("temperature", received_data.temperature);
+                    tb.sendTelemetryData("humidity", received_data.humidity);
+                    tb.sendTelemetryData("anomaly_score", received_data.anomaly_score);
+                    Serial.println("📤 Đã gửi Telemetry lên ThingsBoard!");
+                }
+            }
+        } else {
+            vTaskDelay(2000 / portTICK_PERIOD_MS); // Nếu mất kết nối, chờ 2s trước khi thử lại
+        }
     }
 }
