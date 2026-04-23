@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CoreIOT Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #333; margin-bottom: 20px; text-align: center; }
+        .controls { text-align: center; margin-bottom: 20px; }
+        button { padding: 10px 20px; font-size: 16px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .card h2 { color: #007bff; margin-bottom: 15px; font-size: 18px; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        .card-content { background: #f9f9f9; padding: 15px; border-radius: 5px; max-height: 300px; overflow-y: auto; }
+        .card-content pre { background: #fff; padding: 10px; border-left: 3px solid #007bff; }
+        
+        .history { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .history h2 { color: #28a745; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #28a745; color: white; }
+        tr:hover { background: #f5f5f5; }
+        
+        .loading { text-align: center; color: #666; }
+        .error { color: red; background: #ffebee; padding: 10px; border-radius: 5px; }
+        .success { color: green; background: #e8f5e9; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 CoreIOT Dashboard</h1>
+        
+        <div class="controls">
+            <button onclick="syncData()">🔄 Sync Data từ CoreIOT</button>
+            <button onclick="refreshDashboard()">🔃 Refresh Dashboard</button>
+        </div>
+
+        <div id="message"></div>
+
+        <div class="dashboard">
+            <div class="card">
+                <h2>📡 Attributes (Thông tin thiết bị)</h2>
+                <div class="card-content" id="attributes">
+                    <div class="loading">Đang tải...</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📈 Telemetry (Dữ liệu cảm biến)</h2>
+                <div class="card-content" id="telemetry">
+                    <div class="loading">Đang tải...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="history">
+            <h2>📋 Lịch sử dữ liệu (50 bản ghi gần nhất)</h2>
+            <table id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Thời gian</th>
+                        <th>Telemetry</th>
+                        <th>Attributes</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody">
+                    <tr><td colspan="3" class="loading">Đang tải...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "http://localhost:3000";
+
+        // Display notification message
+        function showMessage(text, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.innerHTML = `<div class="${type}">${text}</div>`;
+            setTimeout(() => { msgDiv.innerHTML = ''; }, 3000);
+        }
+
+        // Sync data from CoreIOT
+        async function syncData() {
+            try {
+                const res = await fetch(`${API_BASE}/api/sync-coreiot`);
+                const data = await res.json();
+                
+                if (data.success) {
+                    showMessage('✅ Đồng bộ dữ liệu thành công!', 'success');
+                    refreshDashboard();
+                } else {
+                    showMessage('❌ Lỗi: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showMessage('❌ Lỗi kết nối: ' + error.message, 'error');
+            }
+        }
+
+        // Refresh dashboard
+        async function refreshDashboard() {
+            try {
+                // Get latest data
+                const latestRes = await fetch(`${API_BASE}/api/latest-data`);
+                const latest = await latestRes.json();
+
+                if (latest) {
+                    // Render Attributes beautifully
+                    const attr = latest.attributes || {};
+                    const activeStatus = attr.active ? '<span style="color: green; font-weight: bold;">🟢 Đang hoạt động</span>' : '<span style="color: red; font-weight: bold;">🔴 Mất kết nối</span>';
+                    const lastConnect = attr.lastConnectTime ? new Date(attr.lastConnectTime).toLocaleString('vi-VN') : '--';
+                    
+                    document.getElementById('attributes').innerHTML = `
+                        <ul style="list-style: none; padding: 0; line-height: 1.8;">
+                            <li style="padding: 10px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
+                                <span>🌐 <strong>Local IP:</strong></span> <span>${attr.localIp || '--'}</span>
+                            </li>
+                            <li style="padding: 10px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
+                                <span>🔗 <strong>MAC Address:</strong></span> <span>${attr.macAddress || '--'}</span>
+                            </li>
+                            <li style="padding: 10px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
+                                <span>Trạng thái:</span> <span>${activeStatus}</span>
+                            </li>
+                            <li style="padding: 10px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
+                                <span>⏱️ <strong>Kết nối cuối:</strong></span> <span>${lastConnect}</span>
+                            </li>
+                        </ul>
+                    `;
+
+                    // Render Telemetry beautifully
+                    const tel = latest.telemetry || {};
+                    const temp = tel.temperature !== undefined ? tel.temperature.toFixed(2) : '--';
+                    const hum = tel.humidity !== undefined ? tel.humidity.toFixed(2) : '--';
+                    const anom = tel.anomaly_score !== undefined ? tel.anomaly_score.toFixed(3) : '--';
+
+                    document.getElementById('telemetry').innerHTML = `
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; background: #ffebee; padding: 15px; border-radius: 8px;">
+                                <span style="font-size: 16px;">🌡️ <strong>Nhiệt độ</strong></span>
+                                <span style="color: #c62828; font-size: 22px; font-weight: bold;">${temp} °C</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; background: #e3f2fd; padding: 15px; border-radius: 8px;">
+                                <span style="font-size: 16px;">💧 <strong>Độ ẩm</strong></span>
+                                <span style="color: #1565c0; font-size: 22px; font-weight: bold;">${hum} %</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; background: #fff3e0; padding: 15px; border-radius: 8px;">
+                                <span style="font-size: 16px;">⚠️ <strong>Anomaly Score</strong></span>
+                                <span style="color: #ef6c00; font-size: 22px; font-weight: bold;">${anom}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Get history
+                const historyRes = await fetch(`${API_BASE}/api/data-history`);
+                const history = await historyRes.json();
+
+                const tbody = document.getElementById('historyBody');
+                tbody.innerHTML = history.map(record => {
+                    const tel = record.telemetry || {};
+                    const attr = record.attributes || {};
+                    const temp = tel.temperature !== undefined ? tel.temperature.toFixed(1) + ' °C' : '--';
+                    const hum = tel.humidity !== undefined ? tel.humidity.toFixed(1) + ' %' : '--';
+                    const anom = tel.anomaly_score !== undefined ? tel.anomaly_score.toFixed(3) : '--';
+                    const ip = attr.localIp || '--';
+                    const status = attr.active ? '🟢' : '🔴';
+
+                    return `
+                    <tr>
+                        <td style="font-weight: bold; color: #555;">${new Date(record.timestamp).toLocaleString('vi-VN')}</td>
+                        <td>
+                            <span style="color: #c62828; margin-right: 15px; font-weight: bold;">🌡️ ${temp}</span> 
+                            <span style="color: #1565c0; margin-right: 15px; font-weight: bold;">💧 ${hum}</span> 
+                            <span style="color: #ef6c00; font-weight: bold;">⚠️ ${anom}</span>
+                        </td>
+                        <td>
+                            ${status} IP: <strong style="color: #333;">${ip}</strong>
+                        </td>
+                    </tr>
+                    `;
+                }).join('');
+            } catch (error) {
+                showMessage('❌ Lỗi tải dữ liệu: ' + error.message, 'error');
+            }
+        }
+
+        // Load dashboard on page load
+        refreshDashboard();
+        // Auto-sync every 10 seconds
+        setInterval(syncData, 10000);
+    </script>
+</body>
+</html>
