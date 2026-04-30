@@ -125,7 +125,12 @@ void task_websocket_sender(void *pvParameters)
                 doc["type"] = "update";
                 doc["temp"] = received_data.temperature;
                 doc["humi"] = received_data.humidity;
-                doc["anomaly"] = received_data.anomaly_score;
+                
+                const char *status_str = "NORMAL";
+                if (received_data.status == STATUS_WARNING) status_str = "WARNING";
+                else if (received_data.status == STATUS_DANGER) status_str = "DANGER";
+                
+                doc["status"] = status_str;
 
                 String output;
                 serializeJson(doc, output);

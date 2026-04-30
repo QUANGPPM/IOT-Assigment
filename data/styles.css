@@ -3,28 +3,29 @@ body {
   font-family     : "Poppins", Arial, sans-serif;
   display         : flex;
   height          : 100vh;
-  background-color: #eef2f7;
+  background-color: #1a1a2e;
+  color           : #ecf6ff;
 }
 
 /* Sidebar */
 .sidebar {
   width           : 260px;
-  background-color: #2294F2;
+  background-color: #0f3460;
   color           : white;
   display         : flex;
   flex-direction  : column;
   align-items     : center;
-  box-shadow      : 3px 0 10px rgba(0, 0, 0, 0.2);
+  box-shadow      : 3px 0 15px rgba(0, 0, 0, 0.5);
 }
 
 .logo-container {
   width          : 100%;
-  background     : white;
+  background     : #16213e;
   display        : flex;
   justify-content: center;
   align-items    : center;
   padding        : 20px 0;
-  border-bottom  : 2px solid rgba(0, 0, 0, 0.1);
+  border-bottom  : 2px solid rgba(255, 255, 255, 0.05);
 }
 
 .logo-img {
@@ -47,10 +48,14 @@ body {
   gap          : 12px;
 }
 
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .nav-item.active {
-  background: #fff;
-  color     : #2294F2;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  background: #e94560;
+  color     : white;
+  box-shadow: 0 4px 10px rgba(233, 69, 96, 0.4);
 }
 
 /* Main Content */
@@ -60,7 +65,7 @@ body {
   overflow-y: auto;
 }
 
-/* Home Gauges */
+/* Home Gauges & Status */
 .gauges-container {
   display        : flex;
   flex-wrap      : wrap;
@@ -69,9 +74,9 @@ body {
 }
 
 .gauge-card {
-  background   : white;
+  background   : #16213e;
   border-radius: 16px;
-  box-shadow   : 0 6px 16px rgba(0, 0, 0, 0.1);
+  box-shadow   : 0 6px 20px rgba(0, 0, 0, 0.3);
   padding      : 30px;
   text-align   : center;
   width        : 300px;
@@ -85,6 +90,21 @@ body {
   margin: 0 auto;
 }
 
+.status-container {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.status-badge {
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 24px;
+}
+.status-badge.normal { background: #4CAF50; color: white; box-shadow: 0 0 15px rgba(76, 175, 80, 0.5); }
+.status-badge.warning { background: #FFC107; color: black; box-shadow: 0 0 15px rgba(255, 193, 7, 0.5); }
+.status-badge.danger { background: #F44336; color: white; box-shadow: 0 0 15px rgba(244, 67, 54, 0.5); }
+
 /* Device Page */
 .device-list {
   display        : flex;
@@ -95,9 +115,9 @@ body {
 }
 
 .device-card {
-  background   : #fff;
+  background   : #16213e;
   border-radius: 20px;
-  box-shadow   : 0 5px 20px rgba(0, 0, 0, 0.1);
+  box-shadow   : 0 5px 20px rgba(0, 0, 0, 0.3);
   width        : 240px;
   padding      : 25px 20px;
   text-align   : center;
@@ -107,12 +127,12 @@ body {
 
 .device-card:hover {
   transform : translateY(-5px);
-  box-shadow: 0 8px 25px rgba(34, 148, 242, 0.25);
+  box-shadow: 0 8px 25px rgba(233, 69, 96, 0.3);
 }
 
 .device-icon {
   font-size    : 36px;
-  color        : #2294F2;
+  color        : #e94560;
   margin-bottom: 10px;
 }
 
@@ -124,47 +144,32 @@ body {
   font-weight  : 600;
   font-size    : 16px;
   cursor       : pointer;
-  background   : #e3e3e3;
+  background   : #1a1a2e;
+  color        : #fff;
   transition   : 0.3s;
 }
 
 .toggle-btn.on {
-  background: linear-gradient(90deg, #2294F2, #1b7fe0);
+  background: linear-gradient(90deg, #e94560, #d83a50);
   color     : white;
-  box-shadow: 0 4px 12px rgba(34, 148, 242, 0.4);
+  box-shadow: 0 4px 12px rgba(233, 69, 96, 0.4);
 }
 
-.delete-icon {
-  position: absolute;
-  top     : 10px;
-  right   : 12px;
-  color   : #e74c3c;
-  cursor  : pointer;
+.slider-container {
+  margin-top: 20px;
+  text-align: left;
 }
 
-.add-relay-btn {
-  position     : fixed;
-  bottom       : 35px;
-  right        : 35px;
-  background   : linear-gradient(135deg, #2294F2, #1a75e6);
-  color        : white;
-  border       : none;
-  border-radius: 50%;
-  width        : 80px;
-  /* to hơn chút */
-  height       : 80px;
-  font-size    : 34px;
-  /* icon lớn hơn */
-  cursor       : pointer;
-  box-shadow   : 0 6px 20px rgba(0, 0, 0, 0.25);
-  transition   : 0.3s;
+.slider-container p {
+  margin: 0 0 5px 0;
+  font-size: 14px;
+  color: #ccc;
 }
 
-.add-relay-btn:hover {
-  transform : scale(1.08);
-  box-shadow: 0 8px 25px rgba(34, 148, 242, 0.4);
+.slider {
+  width: 100%;
+  accent-color: #e94560;
 }
-
 
 /* Settings */
 .settings-section {
@@ -176,28 +181,26 @@ body {
 }
 
 .settings-card {
-  background   : white;
+  background   : #16213e;
   padding      : 50px 60px;
   border-radius: 20px;
-  box-shadow   : 0 10px 25px rgba(0, 0, 0, 0.15);
+  box-shadow   : 0 10px 30px rgba(0, 0, 0, 0.4);
   width        : 850px;
-  /* ✅ to hơn */
   max-width    : 95%;
   text-align   : center;
 }
 
 .settings-card h2 {
-  color        : #2294F2;
+  color        : #e94560;
   margin-bottom: 15px;
 }
 
 .settings-card p {
-  color        : #666;
+  color        : #bbb;
   margin-bottom: 35px;
   font-size    : 15px;
 }
 
-/* FORM STYLE — vertical layout with spacing */
 #settingsForm {
   width         : 100%;
   display       : flex;
@@ -205,15 +208,11 @@ body {
   align-items   : center;
 }
 
-/* mỗi input-group là 1 dòng, cách nhau */
 .input-group {
   position     : relative;
   width        : 98%;
-  /* ✅ rộng gần hết khung */
   max-width    : 760px;
-  /* ✅ dài hơn hẳn */
   margin-bottom: 20px;
-  /* ✅ tạo khoảng cách giữa các dòng */
 }
 
 .input-group i {
@@ -221,7 +220,7 @@ body {
   top      : 50%;
   left     : 18px;
   transform: translateY(-50%);
-  color    : #2294F2;
+  color    : #e94560;
   font-size: 18px;
 }
 
@@ -229,23 +228,23 @@ body {
   width           : 100%;
   padding         : 16px 18px 16px 54px;
   border-radius   : 14px;
-  border          : 1.5px solid #ccc;
+  border          : 1.5px solid #2a2a4a;
   font-size       : 17px;
-  background-color: #f9f9f9;
+  background-color: #1a1a2e;
+  color           : #ecf6ff;
   transition      : all 0.3s ease;
   box-sizing      : border-box;
 }
 
 .input-group input:focus {
-  border-color    : #2294F2;
-  box-shadow      : 0 0 10px rgba(34, 148, 242, 0.25);
-  background-color: #fff;
+  border-color    : #e94560;
+  box-shadow      : 0 0 10px rgba(233, 69, 96, 0.3);
+  outline         : none;
 }
 
-/* Save Button */
 .btn-save {
   margin-top   : 25px;
-  background   : linear-gradient(90deg, #2294F2, #1b7fe0);
+  background   : linear-gradient(90deg, #e94560, #d83a50);
   color        : white;
   border       : none;
   border-radius: 12px;
@@ -253,100 +252,23 @@ body {
   font-size    : 18px;
   font-weight  : 600;
   cursor       : pointer;
-  box-shadow   : 0 6px 18px rgba(34, 148, 242, 0.45);
+  box-shadow   : 0 6px 18px rgba(233, 69, 96, 0.45);
   transition   : all 0.3s ease;
 }
 
 .btn-save:hover {
   transform : translateY(-2px);
-  box-shadow: 0 8px 22px rgba(34, 148, 242, 0.55);
+  box-shadow: 0 8px 22px rgba(233, 69, 96, 0.55);
 }
 
-
-/* Dialog */
-.dialog-overlay {
-  position       : fixed;
-  top            : 0;
-  left           : 0;
-  right          : 0;
-  bottom         : 0;
-  background     : rgba(0, 0, 0, 0.5);
-  display        : flex;
-  justify-content: center;
-  align-items    : center;
-  z-index        : 100;
+.fade-in {
+  animation: fadeIn 0.4s ease;
 }
 
-.dialog {
-  background   : white;
-  border-radius: 20px;
-  padding      : 35px 30px;
-  width        : 380px;
-  text-align   : center;
-  box-shadow   : 0 12px 35px rgba(0, 0, 0, 0.25);
-  animation    : popIn 0.25s ease;
-}
-
-.dialog h3 {
-  font-size: 22px;
-  color    : #2294F2;
-}
-
-.dialog.warning h3 {
-  color: #e74c3c;
-}
-
-.dialog p {
-  color    : #666;
-  font-size: 15px;
-}
-
-.input-field input {
-  width        : 90%;
-  padding      : 12px;
-  border       : 1.5px solid #ccc;
-  border-radius: 10px;
-  margin-bottom: 15px;
-}
-
-.dialog-buttons {
-  display        : flex;
-  justify-content: center;
-  gap            : 15px;
-}
-
-.dialog-buttons button {
-  padding      : 10px 22px;
-  border       : none;
-  border-radius: 10px;
-  font-weight  : 600;
-  cursor       : pointer;
-  transition   : 0.3s;
-}
-
-.dialog-buttons .confirm {
-  background: linear-gradient(90deg, #2294F2, #1b7fe0);
-  color     : white;
-}
-
-.dialog-buttons .danger {
-  background: #e74c3c;
-  color     : white;
-}
-
-.dialog-buttons .cancel {
-  background: #ddd;
-  color     : #333;
-}
-
-@keyframes popIn {
-  from {
-    transform: scale(0.8);
-    opacity  : 0;
-  }
-
-  to {
-    transform: scale(1);
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}rm: scale(1);
     opacity  : 1;
   }
 }

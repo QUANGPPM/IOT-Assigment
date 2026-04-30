@@ -1,4 +1,5 @@
 #include <task_handler.h>
+#include "led_control.h"
 
 void handleWebSocketMessage(String message)
 {
@@ -14,26 +15,23 @@ void handleWebSocketMessage(String message)
     JsonObject value = doc["value"];
     if (doc["page"] == "device")
     {
-        if (!value.containsKey("gpio") || !value.containsKey("status"))
+        if (!value.containsKey("id"))
         {
-            Serial.println("⚠️ JSON thiếu thông tin gpio hoặc status");
+            Serial.println("⚠️ JSON thiếu thông tin id LED");
             return;
         }
 
-        int gpio = value["gpio"];
-        String status = value["status"].as<String>();
-
-        Serial.printf("⚙️ Điều khiển GPIO %d → %s\n", gpio, status.c_str());
-        pinMode(gpio, OUTPUT);
-        if (status.equalsIgnoreCase("ON"))
-        {
-            digitalWrite(gpio, HIGH);
-            Serial.printf("🔆 GPIO %d ON\n", gpio);
+        int id = value["id"];
+        
+        if (value.containsKey("status")) {
+            String status = value["status"].as<String>();
+            Serial.printf("⚙️ Điều khiển LED %d → %s\n", id, status.c_str());
+            led_set_state(id, status.equalsIgnoreCase("ON"));
         }
-        else if (status.equalsIgnoreCase("OFF"))
-        {
-            digitalWrite(gpio, LOW);
-            Serial.printf("💤 GPIO %d OFF\n", gpio);
+        else if (value.containsKey("pwm")) {
+            int pwm = value["pwm"];
+            Serial.printf("🔆 Chỉnh sáng LED %d → %d\n", id, pwm);
+            led_set_pwm(id, pwm);
         }
     }
     else if (doc["page"] == "setting")

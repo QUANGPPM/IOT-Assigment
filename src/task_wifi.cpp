@@ -1,4 +1,5 @@
 #include "task_wifi.h"
+#include "task_check_info.h"
 
 void startAP()
 {
@@ -12,7 +13,7 @@ void startSTA()
 {
     if (WIFI_SSID.isEmpty())
     {
-        vTaskDelete(NULL);
+        return;
     }
 
     WiFi.mode(WIFI_STA);
@@ -26,12 +27,22 @@ void startSTA()
         WiFi.begin(WIFI_SSID.c_str(), WIFI_PASS.c_str());
     }
 
-    while (WiFi.status() != WL_CONNECTED)
+    Serial.print("Connecting to WiFi");
+    int retry = 0;
+    while (WiFi.status() != WL_CONNECTED && retry < 20)
     {
-        vTaskDelay(100 / portTICK_PERIOD_MS);
+        vTaskDelay(500 / portTICK_PERIOD_MS);
+        Serial.print(".");
+        retry++;
     }
-    //Give a semaphore here
-    xSemaphoreGive(xBinarySemaphoreInternet);
+    Serial.println();
+
+    if (WiFi.status() == WL_CONNECTED) {
+        Serial.print("Connected! IP: ");
+        Serial.println(WiFi.localIP());
+        //Give a semaphore here
+        xSemaphoreGive(xBinarySemaphoreInternet);
+    }
 }
 
 bool Wifi_reconnect()
@@ -41,6 +52,16 @@ bool Wifi_reconnect()
     {
         return true;
     }
+    Serial.println("WiFi Disconnected. Reconnecting...");
     startSTA();
     return false;
+}
+
+void task_wifi_manager(void *pvParameters) {
+    while(1) {
+        if (!WIFI_SSID.isEmpty()) {
+            Wifi_reconnect();
+        }
+        vTaskDelay(pdMS_TO_TICKS(10000));
+    }
 }

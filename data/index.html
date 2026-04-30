@@ -52,6 +52,10 @@
           <div id="gauge_humi"></div>
         </div>
       </div>
+      
+      <div class="status-container fade-in">
+        <h2>Trạng thái hệ thống: <span id="systemStatus" class="status-badge normal">NORMAL</span></h2>
+      </div>
     </div>
 
     <!-- THIẾT BỊ -->
@@ -61,11 +65,52 @@
         <p>Quản lý và điều khiển các relay được kết nối.</p>
       </header>
 
-      <div class="device-list" id="relayContainer"></div>
-
-      <button class="add-relay-btn" onclick="openAddRelayDialog()">
-        <i class="fa-solid fa-plus"></i>
-      </button>
+      <div class="device-list">
+        <!-- LED 0 -->
+        <div class="device-card">
+          <i class="fa-solid fa-lightbulb device-icon"></i>
+          <h3>LED 0</h3>
+          <p>GPIO 2</p>
+          <button class="toggle-btn" id="btn-led-0" onclick="toggleLED(0)">OFF</button>
+          <div class="slider-container">
+            <p>Độ sáng</p>
+            <input type="range" min="0" max="255" value="0" class="slider" onchange="changePWM(0, this.value)">
+          </div>
+        </div>
+        <!-- LED 1 -->
+        <div class="device-card">
+          <i class="fa-solid fa-lightbulb device-icon"></i>
+          <h3>LED 1</h3>
+          <p>GPIO 4</p>
+          <button class="toggle-btn" id="btn-led-1" onclick="toggleLED(1)">OFF</button>
+          <div class="slider-container">
+            <p>Độ sáng</p>
+            <input type="range" min="0" max="255" value="0" class="slider" onchange="changePWM(1, this.value)">
+          </div>
+        </div>
+        <!-- LED 2 -->
+        <div class="device-card">
+          <i class="fa-solid fa-lightbulb device-icon"></i>
+          <h3>LED 2</h3>
+          <p>GPIO 16</p>
+          <button class="toggle-btn" id="btn-led-2" onclick="toggleLED(2)">OFF</button>
+          <div class="slider-container">
+            <p>Độ sáng</p>
+            <input type="range" min="0" max="255" value="0" class="slider" onchange="changePWM(2, this.value)">
+          </div>
+        </div>
+        <!-- LED 3 -->
+        <div class="device-card">
+          <i class="fa-solid fa-lightbulb device-icon"></i>
+          <h3>LED 3</h3>
+          <p>GPIO 17</p>
+          <button class="toggle-btn" id="btn-led-3" onclick="toggleLED(3)">OFF</button>
+          <div class="slider-container">
+            <p>Độ sáng</p>
+            <input type="range" min="0" max="255" value="0" class="slider" onchange="changePWM(3, this.value)">
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- THÔNG TIN -->
@@ -116,35 +161,7 @@
     </div>
   </div>
 
-  <!-- HỘP THOẠI THÊM RELAY -->
-  <div id="addRelayDialog" class="dialog-overlay" style="display:none;">
-    <div class="dialog fade-in">
-      <h3><i class="fa-solid fa-plug"></i> Thêm relay mới</h3>
-      <p>Nhập tên relay và chân GPIO</p>
-      <div class="input-field">
-        <input type="text" id="relayName" placeholder="Tên relay">
-      </div>
-      <div class="input-field">
-        <input type="number" id="relayGPIO" placeholder="Chân GPIO">
-      </div>
-      <div class="dialog-buttons">
-        <button class="confirm" onclick="saveRelay()">Lưu</button>
-        <button class="cancel" onclick="closeAddRelayDialog()">Hủy</button>
-      </div>
-    </div>
-  </div>
 
-  <!-- HỘP THOẠI XÓA -->
-  <div id="confirmDeleteDialog" class="dialog-overlay" style="display:none;">
-    <div class="dialog warning fade-in">
-      <h3>⚠️ Xác nhận xóa</h3>
-      <p>Bạn có chắc chắn muốn xóa relay này không?</p>
-      <div class="dialog-buttons">
-        <button class="danger" onclick="confirmDelete()">Xóa</button>
-        <button class="cancel" onclick="closeConfirmDelete()">Hủy</button>
-      </div>
-    </div>
-  </div>
 
   <!-- JS -->
   <script src="script.js"></script>

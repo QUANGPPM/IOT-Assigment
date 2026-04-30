@@ -47,8 +47,12 @@ function onMessage(event) {
             // Cập nhật gauge với dữ liệu thật từ ESP32
             if (gaugeTemp) gaugeTemp.refresh(data.temp);
             if (gaugeHumi) gaugeHumi.refresh(data.humi);
-            // Bạn cũng có thể hiển thị điểm số bất thường ở đâu đó
-            // Ví dụ: document.getElementById('anomalyScore').innerText = data.anomaly.toFixed(4);
+            
+            const statusEl = document.getElementById('systemStatus');
+            if (statusEl) {
+                statusEl.innerText = data.status;
+                statusEl.className = 'status-badge ' + data.status.toLowerCase();
+            }
         }
         // Xử lý các loại tin nhắn khác nếu cần
     } catch (e) {
@@ -103,65 +107,39 @@ function initGauges() {
 
 
 // ==================== DEVICE FUNCTIONS ====================
-function openAddRelayDialog() {
-    document.getElementById('addRelayDialog').style.display = 'flex';
-}
-function closeAddRelayDialog() {
-    document.getElementById('addRelayDialog').style.display = 'none';
-}
-function saveRelay() {
-    const name = document.getElementById('relayName').value.trim();
-    const gpio = document.getElementById('relayGPIO').value.trim();
-    if (!name || !gpio) return alert("⚠️ Please fill all fields!");
-    relayList.push({ id: Date.now(), name, gpio, state: false });
-    renderRelays();
-    closeAddRelayDialog();
-}
-function renderRelays() {
-    const container = document.getElementById('relayContainer');
-    container.innerHTML = "";
-    relayList.forEach(r => {
-        const card = document.createElement('div');
-        card.className = 'device-card';
-        card.innerHTML = `
-      <i class="fa-solid fa-bolt device-icon"></i>
-      <h3>${r.name}</h3>
-      <p>GPIO: ${r.gpio}</p>
-      <button class="toggle-btn ${r.state ? 'on' : ''}" onclick="toggleRelay(${r.id})">
-        ${r.state ? 'ON' : 'OFF'}
-      </button>
-      <i class="fa-solid fa-trash delete-icon" onclick="showDeleteDialog(${r.id})"></i>
-    `;
-        container.appendChild(card);
-    });
-}
-function toggleRelay(id) {
-    const relay = relayList.find(r => r.id === id);
-    if (relay) {
-        relay.state = !relay.state;
-        const relayJSON = JSON.stringify({
-            page: "device",
-            value: {
-                name: relay.name,
-                status: relay.state ? "ON" : "OFF",
-                gpio: relay.gpio
-            }
-        });
-        Send_Data(relayJSON);
-        renderRelays();
+let ledStates = [false, false, false, false];
+
+function toggleLED(id) {
+    ledStates[id] = !ledStates[id];
+    const btn = document.getElementById(`btn-led-${id}`);
+    
+    if (ledStates[id]) {
+        btn.innerText = "ON";
+        btn.classList.add("on");
+    } else {
+        btn.innerText = "OFF";
+        btn.classList.remove("on");
     }
+
+    const payload = JSON.stringify({
+        page: "device",
+        value: {
+            id: id,
+            status: ledStates[id] ? "ON" : "OFF"
+        }
+    });
+    Send_Data(payload);
 }
-function showDeleteDialog(id) {
-    deleteTarget = id;
-    document.getElementById('confirmDeleteDialog').style.display = 'flex';
-}
-function closeConfirmDelete() {
-    document.getElementById('confirmDeleteDialog').style.display = 'none';
-}
-function confirmDelete() {
-    relayList = relayList.filter(r => r.id !== deleteTarget);
-    renderRelays();
-    closeConfirmDelete();
+
+function changePWM(id, value) {
+    const payload = JSON.stringify({
+        page: "device",
+        value: {
+            id: id,
+            pwm: parseInt(value)
+        }
+    });
+    Send_Data(payload);
 }
 
 
