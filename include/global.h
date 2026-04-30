@@ -17,7 +17,7 @@ extern String CORE_IOT_PORT;
 extern boolean isWifiConnected;
 
 extern QueueHandle_t xQueueSensorToML;;
-extern QueueHandle_t xQueueMLToDisplay;
+extern QueueHandle_t xQueueMLData;
 extern QueueHandle_t xQueueMLToServer;
 extern QueueHandle_t xQueueMLToWeb;
 extern SemaphoreHandle_t xBinarySemaphoreInternet;

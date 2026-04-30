@@ -12,12 +12,19 @@ struct SensorData {
     float humidity;
 };
 
+// Enum for system status
+enum SystemStatus {
+    STATUS_NORMAL,
+    STATUS_WARNING,
+    STATUS_DANGER
+};
+
 // Struct to hold processed data after ML inference
 struct ProcessedData {
     float temperature;
     float humidity;
     float anomaly_score;
-    // You can add a const char* status if needed
+    SystemStatus status;
 };
 
 // Struct for application-wide configuration
@@ -31,7 +38,7 @@ struct AppConfig {
 
 // Extern declarations for global handles and config
 extern QueueHandle_t xQueueSensorToML;
-extern QueueHandle_t xQueueMLToDisplay;
+extern QueueHandle_t xQueueMLData;
 extern QueueHandle_t xQueueMLToServer;
 extern QueueHandle_t xQueueMLToWeb;
 

@@ -17,8 +17,8 @@ boolean isWifiConnected = false;
 // 1. From Sensor Task to TinyML Task
 QueueHandle_t xQueueSensorToML = xQueueCreate(2, sizeof(SensorData));
 
-// 2. From TinyML Task to Display Task
-QueueHandle_t xQueueMLToDisplay = xQueueCreate(1, sizeof(ProcessedData));
+// 2. From TinyML Task to Shared Queue (LCD, LED, NeoPixel)
+QueueHandle_t xQueueMLData = xQueueCreate(1, sizeof(ProcessedData));
 
 // 3. From TinyML Task to Server Task
 QueueHandle_t xQueueMLToServer = xQueueCreate(5, sizeof(ProcessedData));

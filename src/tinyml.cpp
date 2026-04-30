@@ -74,6 +74,7 @@ void tiny_ml_task(void *pvParameters)
                 processed_data.temperature = sensor_data.temperature;
                 processed_data.humidity = sensor_data.humidity;
                 processed_data.anomaly_score = -1.0f;
+                processed_data.status = STATUS_DANGER;
             }
             else
             {
@@ -91,11 +92,23 @@ void tiny_ml_task(void *pvParameters)
                 processed_data.temperature = sensor_data.temperature;
                 processed_data.humidity = sensor_data.humidity;
                 processed_data.anomaly_score = output->data.f[0];
-                Serial.printf("Inference: Temp=%.1f, Humi=%.1f -> Score=%.4f\n", processed_data.temperature, processed_data.humidity, processed_data.anomaly_score);
+
+                // Stage 3.1: Status classification (based on temperature)
+                if (processed_data.temperature < 30.0f) {
+                    processed_data.status = STATUS_NORMAL;
+                } else if (processed_data.temperature <= 40.0f) {
+                    processed_data.status = STATUS_WARNING;
+                } else {
+                    processed_data.status = STATUS_DANGER;
+                }
+
+                Serial.printf("Inference: Temp=%.1f, Humi=%.1f -> Score=%.4f (Status: %d)\n", 
+                              processed_data.temperature, processed_data.humidity, 
+                              processed_data.anomaly_score, processed_data.status);
             }
 
             // Stage 4: Fan-out the processed data to downstream tasks
-            xQueueOverwrite(xQueueMLToDisplay, &processed_data);
+            xQueueOverwrite(xQueueMLData, &processed_data);
             xQueueSend(xQueueMLToServer, &processed_data, (TickType_t)10);
             xQueueOverwrite(xQueueMLToWeb, &processed_data); // Gửi dữ liệu cho Web Server
         }
