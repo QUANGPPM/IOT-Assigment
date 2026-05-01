@@ -29,10 +29,10 @@ void led_blinky(void *pvParameters){
             // Determine blink rate based on temperature status
             if (received_data.temperature < 30.0f) {
                 new_period = pdMS_TO_TICKS(2000); // Normal (< 30°C)
-            } else if (received_data.temperature <= 40.0f) {
-                new_period = pdMS_TO_TICKS(500);  // Warning (30-40°C)
+            } else if (received_data.temperature <= 35.0f) {
+                new_period = pdMS_TO_TICKS(500);  // Warning (30-35°C)
             } else {
-                new_period = pdMS_TO_TICKS(100);  // Danger (> 40°C)
+                new_period = pdMS_TO_TICKS(100);  // Danger (> 35°C)
             }
 
             // Change timer period if needed

@@ -69,45 +69,12 @@
         <!-- LED 0 -->
         <div class="device-card">
           <i class="fa-solid fa-lightbulb device-icon"></i>
-          <h3>LED 0</h3>
+          <h3>LED 0 (Web Control)</h3>
           <p>GPIO 2</p>
           <button class="toggle-btn" id="btn-led-0" onclick="toggleLED(0)">OFF</button>
           <div class="slider-container">
-            <p>Độ sáng</p>
+            <p>Brightness</p>
             <input type="range" min="0" max="255" value="0" class="slider" onchange="changePWM(0, this.value)">
-          </div>
-        </div>
-        <!-- LED 1 -->
-        <div class="device-card">
-          <i class="fa-solid fa-lightbulb device-icon"></i>
-          <h3>LED 1</h3>
-          <p>GPIO 4</p>
-          <button class="toggle-btn" id="btn-led-1" onclick="toggleLED(1)">OFF</button>
-          <div class="slider-container">
-            <p>Độ sáng</p>
-            <input type="range" min="0" max="255" value="0" class="slider" onchange="changePWM(1, this.value)">
-          </div>
-        </div>
-        <!-- LED 2 -->
-        <div class="device-card">
-          <i class="fa-solid fa-lightbulb device-icon"></i>
-          <h3>LED 2</h3>
-          <p>GPIO 16</p>
-          <button class="toggle-btn" id="btn-led-2" onclick="toggleLED(2)">OFF</button>
-          <div class="slider-container">
-            <p>Độ sáng</p>
-            <input type="range" min="0" max="255" value="0" class="slider" onchange="changePWM(2, this.value)">
-          </div>
-        </div>
-        <!-- LED 3 -->
-        <div class="device-card">
-          <i class="fa-solid fa-lightbulb device-icon"></i>
-          <h3>LED 3</h3>
-          <p>GPIO 17</p>
-          <button class="toggle-btn" id="btn-led-3" onclick="toggleLED(3)">OFF</button>
-          <div class="slider-container">
-            <p>Độ sáng</p>
-            <input type="range" min="0" max="255" value="0" class="slider" onchange="changePWM(3, this.value)">
           </div>
         </div>
       </div>

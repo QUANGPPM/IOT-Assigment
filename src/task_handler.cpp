@@ -17,7 +17,7 @@ void handleWebSocketMessage(String message)
     {
         if (!value.containsKey("id"))
         {
-            Serial.println("⚠️ JSON thiếu thông tin id LED");
+            Serial.println("⚠️ JSON missing LED id");
             return;
         }
 
@@ -25,12 +25,12 @@ void handleWebSocketMessage(String message)
         
         if (value.containsKey("status")) {
             String status = value["status"].as<String>();
-            Serial.printf("⚙️ Điều khiển LED %d → %s\n", id, status.c_str());
+            Serial.printf("⚙️ Control LED %d → %s\n", id, status.c_str());
             led_set_state(id, status.equalsIgnoreCase("ON"));
         }
         else if (value.containsKey("pwm")) {
             int pwm = value["pwm"];
-            Serial.printf("🔆 Chỉnh sáng LED %d → %d\n", id, pwm);
+            Serial.printf("🔆 Change LED %d brightness → %d\n", id, pwm);
             led_set_pwm(id, pwm);
         }
     }
