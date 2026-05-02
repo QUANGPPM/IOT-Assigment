@@ -16,12 +16,11 @@ void Webserver_sendata(String data)
     if (ws.count() > 0)
     {
         ws.textAll(data); // Send to all connected clients
-        Serial.println("📤 Đã gửi dữ liệu qua WebSocket: " + data);
+        Serial.printf("[WS] 📤 Đã gửi dữ liệu: %s\n", data.c_str());
     }
     else
     {
-        Serial.println("⚠️ Không có client WebSocket nào đang kết nối!");
-        // Serial.println("⚠️ No WebSocket clients are connected!");
+        Serial.println("[WS] ⚠️ Không có client nào đang kết nối!");
     }
 }
 
@@ -30,11 +29,11 @@ void onEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEventType 
 {
     if (type == WS_EVT_CONNECT)
     {
-        Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
+        Serial.printf("[WS] Client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
     }
     else if (type == WS_EVT_DISCONNECT)
     {
-        Serial.printf("WebSocket client #%u disconnected\n", client->id());
+        Serial.printf("[WS] Client #%u disconnected\n", client->id());
     }
     else if (type == WS_EVT_DATA)
     {
@@ -93,7 +92,7 @@ void task_webserver_run(void *pvParameters)
     // Start the webserver once. This function will set up all handlers
     // for the web page, WebSocket, and ElegantOTA.
     connectWSV();
-    Serial.println("🚀 Web server task started and running.");
+    Serial.println("[WEB] 🚀 Web server task started and running.");
 
     while (1)
     {

@@ -3,13 +3,13 @@
 
 void handleWebSocketMessage(String message)
 {
-    Serial.println(message);
+    Serial.printf("[WS] 📩 Nhận dữ liệu: %s\n", message.c_str());
     StaticJsonDocument<256> doc;
 
     DeserializationError error = deserializeJson(doc, message);
     if (error)
     {
-        Serial.println("❌ Lỗi parse JSON!");
+        Serial.println("[WS] ❌ Lỗi parse JSON!");
         return;
     }
     JsonObject value = doc["value"];
@@ -17,7 +17,7 @@ void handleWebSocketMessage(String message)
     {
         if (!value.containsKey("id"))
         {
-            Serial.println("⚠️ JSON missing LED id");
+            Serial.println("[WEB] ⚠️ JSON missing LED id");
             return;
         }
 
@@ -25,12 +25,12 @@ void handleWebSocketMessage(String message)
         
         if (value.containsKey("status")) {
             String status = value["status"].as<String>();
-            Serial.printf("⚙️ Control LED %d → %s\n", id, status.c_str());
+            Serial.printf("[WEB] ⚙️ Control LED %d → %s\n", id, status.c_str());
             led_set_state(id, status.equalsIgnoreCase("ON"));
         }
         else if (value.containsKey("pwm")) {
             int pwm = value["pwm"];
-            Serial.printf("🔆 Change LED %d brightness → %d\n", id, pwm);
+            Serial.printf("[WEB] 🔆 Change LED %d brightness → %d\n", id, pwm);
             led_set_pwm(id, pwm);
         }
     }
@@ -42,7 +42,7 @@ void handleWebSocketMessage(String message)
         String CORE_IOT_SERVER = doc["value"]["server"].as<String>();
         String CORE_IOT_PORT = doc["value"]["port"].as<String>();
 
-        Serial.println("📥 Nhận cấu hình từ WebSocket:");
+        Serial.println("[WEB] 📥 Nhận cấu hình từ WebSocket:");
         Serial.println("SSID: " + WIFI_SSID);
         Serial.println("PASS: " + WIFI_PASS);
         Serial.println("TOKEN: " + CORE_IOT_TOKEN);

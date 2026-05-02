@@ -43,7 +43,11 @@ bool Wifi_reconnect()
 
 void task_wifi_manager(void *pvParameters) {
     while(1) {
-        if (!WIFI_SSID.isEmpty()) Wifi_reconnect();
+        if (!WIFI_SSID.isEmpty()) {
+            if (!Wifi_reconnect()) {
+                Serial.println("[WIFI] Status: Not Connected");
+            }
+        }
         vTaskDelay(pdMS_TO_TICKS(10000));
     }
 }
