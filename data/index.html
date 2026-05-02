@@ -37,8 +37,8 @@
     <!-- TRANG CHỦ -->
     <div id="home" class="section fade-in">
       <header>
-        <h1>Bảng điều khiển môi trường</h1>
-        <p>Giám sát nhiệt độ và độ ẩm theo thời gian thực</p>
+        <h1>Bảng điều khiển Local Gateway</h1>
+        <p>Giám sát qua trạm trung chuyển ThingsBoard nội bộ</p>
       </header>
 
       <div class="gauges-container">
@@ -92,7 +92,7 @@
     <div id="settings" class="section settings-section" style="display:none;">
       <div class="settings-card">
         <h2><i class="fa-solid fa-gear"></i> Cấu hình thiết bị</h2>
-        <p>Nhập thông tin Wi-Fi và kết nối Core IoT của bạn bên dưới.</p>
+        <p>Cấu hình Wi-Fi và kết nối Local Gateway (ThingsBoard) của bạn.</p>
 
         <form id="settingsForm">
           <div class="input-group">
@@ -107,17 +107,17 @@
 
           <div class="input-group">
             <i class="fa-solid fa-key"></i>
-            <input type="text" id="token" placeholder="Mã Token Core IoT" required>
+            <input type="text" id="token" placeholder="Mã Token Thiết bị" required>
           </div>
 
           <div class="input-group">
             <i class="fa-solid fa-server"></i>
-            <input type="text" id="server" placeholder="Máy chủ Core IoT" required>
+            <input type="text" id="server" placeholder="IP máy tính chạy Gateway" required>
           </div>
 
           <div class="input-group">
             <i class="fa-solid fa-plug"></i>
-            <input type="number" id="port" placeholder="Cổng Core IoT" required>
+            <input type="number" id="port" placeholder="Cổng kết nối (Mặc định 1883)" required>
           </div>
 
           <button type="submit" class="btn-save">
