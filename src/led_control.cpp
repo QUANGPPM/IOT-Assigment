@@ -1,27 +1,41 @@
 #include "led_control.h"
 
-// Define 4 GPIOs for 4 LEDs (You can change these to your actual pins)
-const uint8_t LED_PINS[4] = {2, 4, 16, 17};
-const uint8_t PWM_CHANNELS[4] = {0, 1, 2, 3};
-const double PWM_FREQ = 5000;
-const uint8_t PWM_RESOLUTION = 8;
+// Initialize the NeoPixel strip object
+Adafruit_NeoPixel pixels(NUM_PIXELS, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
+bool current_states[NUM_PIXELS] = {false, false, false, false};
 
 void init_led_pwm() {
-    for (int i = 0; i < 4; i++) {
-        ledcSetup(PWM_CHANNELS[i], PWM_FREQ, PWM_RESOLUTION);
-        ledcAttachPin(LED_PINS[i], PWM_CHANNELS[i]);
-        ledcWrite(PWM_CHANNELS[i], 0); // Start with LEDs OFF
-    }
+    pixels.begin();
+    pixels.clear();
+    pixels.show();
+    Serial.printf("[LED] NeoPixel Initialized on Pin %d (4 LEDs)\n", NEOPIXEL_PIN);
 }
 
 void led_set_state(uint8_t id, bool state) {
-    if (id < 4) {
-        ledcWrite(PWM_CHANNELS[id], state ? 255 : 0);
+    if (id < NUM_PIXELS) {
+        current_states[id] = state;
+        // Set only the Red channel as requested (R, G, B)
+        if (state) {
+            pixels.setPixelColor(id, pixels.Color(255, 0, 0));
+        } else {
+            pixels.setPixelColor(id, pixels.Color(0, 0, 0));
+        }
+        pixels.show();
     }
 }
 
 void led_set_pwm(uint8_t id, uint8_t duty_cycle) {
-    if (id < 4) {
-        ledcWrite(PWM_CHANNELS[id], duty_cycle);
+    if (id < NUM_PIXELS) {
+        current_states[id] = (duty_cycle > 0);
+        // Set Red channel with duty_cycle as brightness
+        pixels.setPixelColor(id, pixels.Color(duty_cycle, 0, 0));
+        pixels.show();
     }
+}
+
+bool led_get_state(uint8_t id) {
+    if (id < NUM_PIXELS) {
+        return current_states[id];
+    }
+    return false;
 }

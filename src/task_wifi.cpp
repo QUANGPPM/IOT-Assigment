@@ -5,63 +5,45 @@ void startAP()
 {
     WiFi.mode(WIFI_AP);
     WiFi.softAP(String(SSID_AP), String(PASS_AP));
-    Serial.print("AP IP: ");
-    Serial.println(WiFi.softAPIP());
+    Serial.printf("[WIFI] AP Started. IP: %s\n", WiFi.softAPIP().toString().c_str());
 }
 
 void startSTA()
 {
-    if (WIFI_SSID.isEmpty())
-    {
-        return;
-    }
+    if (WIFI_SSID.isEmpty()) return;
 
     WiFi.mode(WIFI_STA);
+    if (WIFI_PASS.isEmpty()) WiFi.begin(WIFI_SSID.c_str());
+    else WiFi.begin(WIFI_SSID.c_str(), WIFI_PASS.c_str());
 
-    if (WIFI_PASS.isEmpty())
-    {
-        WiFi.begin(WIFI_SSID.c_str());
-    }
-    else
-    {
-        WiFi.begin(WIFI_SSID.c_str(), WIFI_PASS.c_str());
-    }
-
-    Serial.print("Connecting to WiFi");
+    Serial.printf("[WIFI] Connecting to %s", WIFI_SSID.c_str());
     int retry = 0;
-    while (WiFi.status() != WL_CONNECTED && retry < 20)
-    {
-        vTaskDelay(500 / portTICK_PERIOD_MS);
+    while (WiFi.status() != WL_CONNECTED && retry < 20) {
+        vTaskDelay(pdMS_TO_TICKS(500));
         Serial.print(".");
         retry++;
     }
     Serial.println();
 
     if (WiFi.status() == WL_CONNECTED) {
-        Serial.print("Connected! IP: ");
-        Serial.println(WiFi.localIP());
-        //Give a semaphore here
+        Serial.printf("[WIFI] Connected. IP: %s\n", WiFi.localIP().toString().c_str());
         xSemaphoreGive(xBinarySemaphoreInternet);
+    } else {
+        Serial.println("[WIFI] Failed to connect");
     }
 }
 
 bool Wifi_reconnect()
 {
-    const wl_status_t status = WiFi.status();
-    if (status == WL_CONNECTED)
-    {
-        return true;
-    }
-    Serial.println("WiFi Disconnected. Reconnecting...");
+    if (WiFi.status() == WL_CONNECTED) return true;
+    Serial.println("[WIFI] Connection lost. Reconnecting...");
     startSTA();
     return false;
 }
 
 void task_wifi_manager(void *pvParameters) {
     while(1) {
-        if (!WIFI_SSID.isEmpty()) {
-            Wifi_reconnect();
-        }
+        if (!WIFI_SSID.isEmpty()) Wifi_reconnect();
         vTaskDelay(pdMS_TO_TICKS(10000));
     }
 }

@@ -1,5 +1,6 @@
 #include "neo_blinky.h"
 #include "app_config.h"
+#include "global.h"
 
 void neo_blinky(void *pvParameters){
 

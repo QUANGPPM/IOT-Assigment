@@ -1,4 +1,7 @@
 {
     "C_Cpp.default.configurationProvider": "platformio.platformio-ide",
-    "C_Cpp.intelliSenseEngine": "default"
+    "C_Cpp.intelliSenseEngine": "default",
+    "files.associations": {
+        "string": "cpp"
+    }
 }

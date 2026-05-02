@@ -6,14 +6,12 @@
 #include "temp_humi_monitor.h"
 #include "tinyml.h"
 
-
 // include task
 #include "task_check_info.h"
 #include "task_core_iot.h"
 #include "task_toogle_boot.h"
 #include "task_webserver.h"
 #include "task_wifi.h"
-
 
 void setup() {
   Serial.begin(115200);
@@ -36,6 +34,4 @@ void setup() {
   xTaskCreate(Task_Toogle_BOOT, "Task_Toogle_BOOT", 4096, NULL, 2, NULL);
 }
 
-void loop() {
-  vTaskSuspend(NULL); 
-}
+void loop() { vTaskSuspend(NULL); } 

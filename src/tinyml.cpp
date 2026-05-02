@@ -1,5 +1,6 @@
 #include "tinyml.h"
 #include "app_config.h"
+#include "global.h"
 
 // Globals, for the convenience of one-shot setup.
 namespace
@@ -102,8 +103,7 @@ void tiny_ml_task(void *pvParameters)
                     processed_data.status = STATUS_DANGER;
                 }
 
-                Serial.printf("Inference: Temp=%.1f, Humi=%.1f -> Score=%.4f (Status: %d)\n", 
-                              processed_data.temperature, processed_data.humidity, 
+                Serial.printf("[ML] Score: %.4f, Status: %d\n", 
                               processed_data.anomaly_score, processed_data.status);
             }
 

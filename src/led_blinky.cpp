@@ -1,5 +1,6 @@
 #include "led_blinky.h"
 #include "app_config.h"
+#include "global.h"
 #include "freertos/timers.h"
 
 TimerHandle_t xLedTimer;
