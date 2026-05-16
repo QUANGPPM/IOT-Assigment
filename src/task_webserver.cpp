@@ -16,11 +16,11 @@ void Webserver_sendata(String data)
     if (ws.count() > 0)
     {
         ws.textAll(data); // Send to all connected clients
-        Serial.printf("[WS] 📤 Đã gửi dữ liệu: %s\n", data.c_str());
+        Serial.printf("[WS] Data sent: %s\n", data.c_str());
     }
     else
     {
-        Serial.println("[WS] ⚠️ Không có client nào đang kết nối!");
+        Serial.println("[WS] No WebSocket clients connected!");
     }
 }
 
@@ -57,12 +57,12 @@ void connectWSV()
 {
     ws.onEvent(onEvent);
     server.addHandler(&ws);
-    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send(LittleFS, "/index.html", "text/html"); });
-    server.on("/script.js", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send(LittleFS, "/script.js", "application/javascript"); });
-    server.on("/styles.css", HTTP_GET, [](AsyncWebServerRequest *request)
-              { request->send(LittleFS, "/styles.css", "text/css"); });
+
+    // Phục vụ tất cả file trong LittleFS (index.html, script.js, styles.css,
+    // raphael.min.js, justgage.min.js, all.min.css, ...)
+    // setDefaultFile đảm bảo "/" trả về index.html
+    server.serveStatic("/", LittleFS, "/").setDefaultFile("index.html");
+
     server.begin();
     ElegantOTA.begin(&server);
     webserver_isrunning = true;
@@ -92,7 +92,7 @@ void task_webserver_run(void *pvParameters)
     // Start the webserver once. This function will set up all handlers
     // for the web page, WebSocket, and ElegantOTA.
     connectWSV();
-    Serial.println("[WEB] 🚀 Web server task started and running.");
+    Serial.println("[WEB] Web server task started and running.");
 
     while (1)
     {
@@ -121,9 +121,10 @@ void task_websocket_sender(void *pvParameters)
             if (received_data.temperature > -999.0f)
             {
                 StaticJsonDocument<200> doc;
-                doc["type"] = "update";
-                doc["temp"] = received_data.temperature;
-                doc["humi"] = received_data.humidity;
+                doc["type"]   = "update";
+                doc["temp"]   = received_data.temperature;
+                doc["humi"]   = received_data.humidity;
+                doc["score"]  = received_data.anomaly_score;  // Thêm cho Home page
                 
                 const char *status_str = "NORMAL";
                 if (received_data.status == STATUS_WARNING) status_str = "WARNING";

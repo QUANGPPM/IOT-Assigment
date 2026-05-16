@@ -80,3 +80,63 @@ bool check_info_File(bool check)
   }
   return true;
 }
+
+// =============================================================================
+// Load_thresholds_File — Đọc cấu hình ngưỡng từ Flash
+// =============================================================================
+void Load_thresholds_File()
+{
+  File file = LittleFS.open("/thresholds.dat", "r");
+  if (!file) {
+    Serial.println("[CFG] thresholds.dat not found, using defaults");
+    return;
+  }
+  DynamicJsonDocument doc(256);
+  if (deserializeJson(doc, file)) {
+    Serial.println("[CFG] thresholds.dat parse error");
+    file.close();
+    return;
+  }
+  file.close();
+
+  // Cập nhật biến global dưới bảo vệ mutex
+  if (xSemaphoreTake(xMutexThresholds, pdMS_TO_TICKS(50)) == pdTRUE) {
+    if (doc.containsKey("led_warn"))    g_led_thresh_warn   = doc["led_warn"].as<float>();
+    if (doc.containsKey("led_danger"))  g_led_thresh_danger = doc["led_danger"].as<float>();
+    if (doc.containsKey("neo_dry"))     g_neo_thresh_dry    = doc["neo_dry"].as<float>();
+    if (doc.containsKey("neo_wet"))     g_neo_thresh_wet    = doc["neo_wet"].as<float>();
+    if (doc.containsKey("ano_warn"))    g_anomaly_warn      = doc["ano_warn"].as<float>();
+    if (doc.containsKey("ano_danger"))  g_anomaly_danger    = doc["ano_danger"].as<float>();
+    xSemaphoreGive(xMutexThresholds);
+  }
+  Serial.printf("[CFG] Thresholds loaded: LED W/D=%.1f/%.1f | NEO D/W=%.1f/%.1f | ANO W/D=%.1f/%.1f\n",
+                (float)g_led_thresh_warn, (float)g_led_thresh_danger,
+                (float)g_neo_thresh_dry,  (float)g_neo_thresh_wet,
+                (float)g_anomaly_warn,    (float)g_anomaly_danger);
+}
+
+// =============================================================================
+// Save_thresholds_File — Ghi ngưỡng hiện tại vào Flash
+// =============================================================================
+void Save_thresholds_File()
+{
+  DynamicJsonDocument doc(256);
+  // Đọc an toàn qua mutex
+  if (xSemaphoreTake(xMutexThresholds, pdMS_TO_TICKS(50)) == pdTRUE) {
+    doc["led_warn"]   = (float)g_led_thresh_warn;
+    doc["led_danger"] = (float)g_led_thresh_danger;
+    doc["neo_dry"]    = (float)g_neo_thresh_dry;
+    doc["neo_wet"]    = (float)g_neo_thresh_wet;
+    doc["ano_warn"]   = (float)g_anomaly_warn;
+    doc["ano_danger"] = (float)g_anomaly_danger;
+    xSemaphoreGive(xMutexThresholds);
+  }
+  File file = LittleFS.open("/thresholds.dat", "w");
+  if (!file) {
+    Serial.println("[CFG] Cannot open thresholds.dat for write");
+    return;
+  }
+  serializeJson(doc, file);
+  file.close();
+  Serial.println("[CFG] Thresholds saved to flash");
+}

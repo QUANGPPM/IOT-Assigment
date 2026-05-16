@@ -26,7 +26,7 @@ void task_read_sensor(void *pvParameters)
                 humi_arr[valid_samples] = dht20.getHumidity();
                 valid_samples++;
             }
-            vTaskDelay(pdMS_TO_TICKS(500));
+            vTaskDelay(pdMS_TO_TICKS(g_sensor_read_interval));
         }
 
         if (valid_samples >= 3) {

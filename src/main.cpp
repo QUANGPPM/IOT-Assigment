@@ -17,7 +17,8 @@ void setup() {
   Serial.begin(115200);
   Serial.println("\n[SYSTEM] Starting YoloUno IoT Firmware...");
   // Initialize LED PWM hardware
-  check_info_File(0);
+  check_info_File(0);         // Load WiFi/Token config from LittleFS
+  Load_thresholds_File();     // Load hardware thresholds from LittleFS
   init_led_pwm();
 
   xTaskCreate(task_wifi_manager, "Task WiFi", 4096, NULL, 5, NULL);

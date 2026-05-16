@@ -27,22 +27,33 @@ void led_blinky(void *pvParameters){
         if (xQueuePeek(xQueueMLData, &received_data, portMAX_DELAY) == pdTRUE) {
             TickType_t new_period;
             
-            // Determine blink rate based on temperature status
-            if (received_data.temperature < 30.0f) {
-                new_period = pdMS_TO_TICKS(2000); // Normal (< 30°C)
-            } else if (received_data.temperature <= 35.0f) {
-                new_period = pdMS_TO_TICKS(500);  // Warning (30-35°C)
+            // Đọc ngưỡng nhiệt độ động trong vùng bảo vệ mutex
+            float warn_thr, danger_thr;
+            if (xSemaphoreTake(xMutexThresholds, pdMS_TO_TICKS(10)) == pdTRUE) {
+                warn_thr   = g_led_thresh_warn;
+                danger_thr = g_led_thresh_danger;
+                xSemaphoreGive(xMutexThresholds);
             } else {
-                new_period = pdMS_TO_TICKS(100);  // Danger (> 35°C)
+                warn_thr   = 30.0f;
+                danger_thr = 35.0f;
             }
 
-            // Change timer period if needed
+            // Tốc độ nhấp nháy theo 3 mức nhiệt độ
+            if (received_data.temperature < warn_thr) {
+                new_period = pdMS_TO_TICKS(2000); // NORMAL
+            } else if (received_data.temperature <= danger_thr) {
+                new_period = pdMS_TO_TICKS(500);  // WARNING
+            } else {
+                new_period = pdMS_TO_TICKS(100);  // DANGER
+            }
+
+            // Thay đổi tốc độ hẹn giờ nếu cần
             if (current_period != new_period) {
                 current_period = new_period;
                 xTimerChangePeriod(xLedTimer, current_period, 0);
             }
         }
-        // Prevent starvation, only check queue every 1 second
+        // Nhưỡng CPU, chỉ kiểm tra mỗi 1 giây
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
